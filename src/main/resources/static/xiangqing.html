@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<script src="webjars/vue/2.5.17/dist/vue.js"></script>
+<script src="webjars/axios/0.18.0/dist/axios.js"></script>
+<script src="js/common.js"></script>
+<body>
+    <div id="app">
+        <table align="center">
+            <tr>
+                <td colspan="10" align="center"><h3>商品详情页面</h3></td>
+            </tr>
+            <tr>
+                <td colspan="10" align="center"><h3>欢迎{{username}}，来到商品详情页面</h3></td>
+            </tr>
+            <tr>
+                <td>商品名称：</td>
+                <td>{{entity.goodsName}}</td>
+            </tr>
+            <tr>
+                <td>商品标题：</td>
+                <td>{{entity.goodsTitle}}</td>
+            </tr>
+            <tr>
+                <td>商品价格：</td>
+                <td>{{entity.miaoshaPrice}}</td>
+            </tr>
+            <tr>
+                <td colspan="">
+                    <input type="button" value="立即支付" @click="pay()">
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+<script>
+    new Vue({
+        el:"#app",
+        data:{
+            id:null,
+            entity:{},
+            username:"",
+            nowtime:-1,
+            miaoshaTip:''
+        },
+        created:function(){
+            this.id = g_getQueryString("goodsId");
+            this.findGoodsById(this.id);
+        },
+        methods:{
+            findGoodsById:function(id){
+                var that = this;
+                axios.post("goods/findGoodsById?id="+id).then(
+                    function(res){
+
+                        that.username = res.data.data.miaoshaUser.nickname;
+
+                        that.entity=res.data.data.goodVo;
+
+                        that.entity.startDate = new Date(that.entity.startDate).format('yyyy-MM-dd hh:mm:ss');
+
+                        that.nowtime = that.entity.currenttime;
+
+                        that.countDown();
+
+                    },function (error) {
+                        console.log(error);
+                    }
+                )
+            },
+            pay:function () {
+                window.location.href="http://localhost:8080/payment/pay";
+            }
+        }
+    })
+</script>
+</html>

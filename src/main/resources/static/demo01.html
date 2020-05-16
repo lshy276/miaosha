@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<script src="webjars/vue/2.5.17/dist/vue.js"></script>
+<script src="webjars/axios/0.18.0/dist/axios.js"></script>
+<body>
+    <div id="app">
+        随便写的：<input type="text" v-model="msg"><br>
+        手机号<input type="text" v-model="entity.id"><br>
+        密码：<input type="password" v-model="entity.password"><br>
+        <input type="button" @click="login()" value="登录">
+    </div>
+</body>
+<script>
+    new Vue({
+        el:"#app",
+        data:{
+            msg:"李帅豫",
+            entity:{}
+        },
+        methods:{
+            login:function(){
+//                axios.post("http://localhost:8080/login?name=lsy&password=666").then(
+//                        function(res){
+//                            console.log(res);
+//                        }
+//                );
+                axios.post("http://localhost:8080/miaoshauser/login",this.entity).then(
+
+                    function(res){
+                        console.log(res);
+                    }
+
+                )
+
+                //alert(JSON.stringify(this.entity));
+            }
+        }
+    })
+</script>
+</html>

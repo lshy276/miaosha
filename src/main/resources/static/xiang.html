@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<script src="webjars/vue/2.5.17/dist/vue.js"></script>
+<script src="webjars/axios/0.18.0/dist/axios.js"></script>
+<script src="js/jquery.min.js"></script>
+<script src="js/common.js"></script>
+<body>
+<div id="app">
+    <table align="center">
+        <tr>
+            <td colspan="10" align="center"><h3>商品详情页面</h3></td>
+        </tr>
+        <tr>
+            <td colspan="10" align="center"><h3>欢迎{{username}}，来到商品详情页面</h3></td>
+        </tr>
+        <tr>
+            <td>商品名称：</td>
+            <td>{{entity.goodsName}}</td>
+        </tr>
+        <tr>
+            <td>商品标题：</td>
+            <td>{{entity.goodsTitle}}</td>
+        </tr>
+        <tr>
+            <td>商品价格：</td>
+            <td>{{entity.miaoshaPrice}}</td>
+        </tr>
+        <tr>
+            <td>秒杀开始时间为：</td>
+            <td>{{entity.startDate}}</td>
+        </tr>
+        <tr>
+            <td>距离秒杀开始时间剩余：</td>
+            <td>
+                <span v-text="miaoshaTip"></span>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="10" align="right"><input type="button" id="miaosha" value="立即秒杀" disabled @click="ljMiaosha()"></td>
+        </tr>
+    </table>
+</div>
+</body>
+<script>
+    new Vue({
+        el:"#app",
+        data:{
+            entity:{},
+            username:"",
+            nowtime:-1,
+            miaoshaTip:'',
+            pojo:{}
+        },
+        created:function(){
+            this.findGoodsById();
+        },
+        methods:{
+            findGoodsById:function(){
+                var that = this;
+                var id = g_getQueryString("goodsId");
+                axios.post("goods/findGoodsById?id="+id).then(
+                    function(res){
+
+                        if(res.data.flag){
+                            that.username = res.data.data.miaoshaUser.nickname;
+
+                            that.entity=res.data.data.goodVo;
+
+                            that.entity.startDate = new Date(that.entity.startDate).format('yyyy-MM-dd hh:mm:ss');
+
+                            that.nowtime = res.data.data.currenttime;
+
+                            that.pojo.goodsId = that.entity.goodsId;
+
+                            that.pojo.orderId = that.entity.id;
+
+                            console.log(res);
+
+                            that.countDown();
+                        }
+                        else {
+                            alert("请先登录用户");
+                            location.href="login.html";
+                        }
+
+                    },function (error) {
+                        console.log(error);
+                    }
+                )
+            },
+            countDown:function(){
+                var startDate = new Date(this.entity.startDate).getTime();
+                var endTime = new Date(this.entity.endDate).getTime();
+                var timeout;
+                var shengyutime = startDate-this.nowtime;
+                var jieshutime = endTime-this.nowtime;
+                var timeGap;
+                if(this.nowtime<=startDate){
+
+                    timeGap = timGap(shengyutime);
+
+                    this.miaoshaTip ="距离开始时间还有："+timeGap['d']+"天"+timeGap['h']+"时"+timeGap['m']+"分"+timeGap['s']+"秒";
+
+                    this.nowtime = this.nowtime+1000;
+
+                    timeout = setTimeout(this.countDown,1000);
+
+                }
+                else if(this.nowtime>=endTime){
+
+                    this.miaoshaTip ='秒杀已结束';
+
+                    $("#miaosha").prop("disabled",true);
+
+                    clearTimeout(timeout);
+                }
+                else
+                {
+                    timeGap = timGap(jieshutime);
+
+                    this.miaoshaTip ="距离结束时间还有："+timeGap['d']+"天"+timeGap['h']+"时"+timeGap['m']+"分"+timeGap['s']+"秒";
+
+                    this.nowtime = this.nowtime+1000;
+
+                    timeout = setTimeout(this.countDown,1000);
+
+                    $("#miaosha").prop("disabled",false);
+
+                }
+            },
+            ljMiaosha:function(){
+                var id = g_getQueryString("goodsId");
+                axios.post("miaosha/lijimiaosha?miaoshaId="+id).then(
+                    function(res){
+                        if(res.data.flag){
+                            alert(res.data.message);
+                            window.location.href= "xiangqing.html?goodsId="+id;
+                        }
+                        else
+                        {
+                            alert(res.data.message);
+                        }
+                    }
+                )
+            }
+        }
+    })
+</script>
+</html>

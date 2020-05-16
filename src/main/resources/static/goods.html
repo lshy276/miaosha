@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<script src="webjars/vue/2.5.17/dist/vue.js"></script>
+<script src="webjars/axios/0.18.0/dist/axios.js"></script>
+<script src="js/common.js"></script>
+<body>
+    <div id="app">
+        <table>
+            <tr>
+                <td>商品编号</td>
+                <td>商品名称</td>
+                <td>商品标题</td>
+                <td>商品价格</td>
+                <td>操作</td>
+            </tr>
+            <tr v-for="li in list">
+                <td>{{li.id}}</td>
+                <td>{{li.goodsName}}</td>
+                <td>{{li.goodsTitle}}</td>
+                <td>{{li.goodsPrice}}</td>
+                <td>
+                    <a :href="['xiang.html?goodsId='+li.id]">详情</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+<script>
+    new Vue({
+        el:"#app",
+        data:{
+            username:"",
+            list:[]
+        },
+        created:function(){
+            this.username = g_getQueryString("username");
+            this.findAll();
+        },
+        methods:{
+            findAll:function(){
+                var that = this;
+                axios.post("goods/findAll").then(
+                    function(res){
+                        console.log(res);
+                        if(res.data.flag){
+                            that.list = res.data.data.goodsList;
+                        }
+                        else {
+                            alert(res.data.message);
+                            window.location.href="login.html";
+                        }
+                    }
+                )
+            }
+        }
+    })
+</script>
+</html>
