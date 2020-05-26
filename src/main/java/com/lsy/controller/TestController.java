@@ -12,4 +12,9 @@ public class TestController {
     public String lsy(){
         return "李帅豫";
     }
+
+    @RequestMapping("lgz")
+    public String lgz(){
+        return "李公子";
+    }
 }
