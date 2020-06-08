@@ -13,9 +13,10 @@ public class TestController {
         return "李帅豫";
     }
 
-    @RequestMapping("lgz")
-    public String lgz(){
-        return "李公子";
+    @RequestMapping("lxs")
+    public String lxs(){
+        return "李先生";
     }
+
 
 }
